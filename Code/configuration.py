@@ -10,7 +10,7 @@ USER = None
 TOKEN = None
 SAMPLE_LIMIT = 25
 NUM_WORKERS = 4
-LOGGING_LEVEL = logging.WARNING
+LOGGING_LEVEL = logging.DEBUG
 
 # full path to the .db file
 DATABASE = Path(DATA_PATH) / DATABASE_NAME
@@ -27,8 +27,6 @@ logging.basicConfig(level=LOGGING_LEVEL,
                     format='%(asctime)s %(name)s %(levelname)s %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S')
 logger = logging.getLogger('CVEfixes')
-logger.removeHandler(sys.stderr)
-
 
 def read_config() -> None:
     """

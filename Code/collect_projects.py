@@ -189,17 +189,17 @@ def store_tables(df_fixes):
             if df_commit is not None:
                 with db.conn:
                     # ----------------appending each project data to the tables-------------------------------
-                    df_commit = df_commit.applymap(str)
+                    df_commit = df_commit.map(str)
                     df_commit.to_sql(name="commits", con=db.conn, if_exists="append", index=False)
                     cf.logger.debug(f'#Commits: {len(df_commit)}')
 
                     if df_file is not None:
-                        df_file = df_file.applymap(str)
+                        df_file = df_file.map(str)
                         df_file.to_sql(name="file_change", con=db.conn, if_exists="append", index=False)
                         cf.logger.debug(f'#Files: {len(df_file)}')
 
                     if df_method is not None:
-                        df_method = df_method.applymap(str)
+                        df_method = df_method.map(str)
                         df_method.to_sql(name="method_change", con=db.conn, if_exists="append", index=False)
                         cf.logger.debug(f'#Methods: {len(df_method)}')
 

@@ -5,7 +5,7 @@ import uuid
 
 import pandas as pd
 import configuration as cf
-from guesslang import Guess
+from magika import Magika
 from pydriller import Repository
 from utils import log_commit_urls
 
@@ -93,7 +93,8 @@ def extract_project_links(df_master):
                         'hash': link.group('hash'),
                         'repo_url': link.group('repo').replace(r'http:', r'https:')
                     }
-                    df_fixes = df_fixes.append(pd.Series(row), ignore_index=True)
+                    # df_fixes = df_fixes.append(pd.Series(row), ignore_index=True)
+                    df_fixes = pd.concat([df_fixes, pd.DataFrame([row])], ignore_index=True)
 
     df_fixes = df_fixes.drop_duplicates().reset_index(drop=True)
     cf.logger.info(f'Found {len(df_fixes)} references to vulnerability fixing commits')
@@ -105,7 +106,10 @@ def guess_pl(code):
     :returns guessed programming language of the code
     """
     if code:
-        return Guess().language_name(code.strip())
+        m = Magika()
+        # Magika works on bytes, so we encode the string
+        result = m.identify_bytes(code.strip().encode('utf-8'))
+        return result.output.ct_label
     else:
         return 'unknown'
 

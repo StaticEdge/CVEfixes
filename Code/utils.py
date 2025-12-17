@@ -150,7 +150,7 @@ def prune_tables(datafile):
     cf.logger.debug('Processing repository table before filtering...')
     tbd_repos_list = set(list(df_fixes_filtered.repo_url.unique())).difference(set(list(df_repo.repo_url.unique())))
     tbd_rows = add_tbd_repos(tbd_repos_list)
-    df_repo_with_tbd = df_repo.append(tbd_rows, ignore_index=True, sort=False).reset_index(drop=True)
+    df_repo_with_tbd = pd.concat([df_repo, pd.DataFrame(tbd_rows)], ignore_index=True, sort=False).reset_index(drop=True)
     df_repo_filtered = df_repo_with_tbd[df_repo_with_tbd.repo_url.isin(list(df_fixes_filtered.repo_url.unique()))].reset_index(drop=True)
 
     cf.logger.debug('Checking validity of assertions ...')

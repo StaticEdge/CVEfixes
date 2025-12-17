@@ -28,7 +28,7 @@ def import_custom_json(path: str, conn: sqlite3.Connection) -> pd.DataFrame:
         raise IOError(err)
 
     df = preprocess_jsons(df)
-    df = df.applymap(str)
+    df = df.map(str)
     assert df.cve_id.is_unique, 'Primary keys are not unique in cve records!'
     df.to_sql(name="cve", con=conn, if_exists="replace", index=False)
 

@@ -91,20 +91,74 @@ def parse_cwes(str1):
     return lst
 
 
+# def add_cwe_class(problem_col):
+#     """
+#     returns CWEs of the CVE.
+#     """
+#     cwe_classes = []
+#     for p in problem_col:
+#         des = str(p).replace("'", '"')
+#         des = json.loads(des)
+#         print("des", des)
+#         for cwes in json_normalize(des)["description"]:  # for every cwe of each cve.
+#             if len(cwes) != 0:
+#                 cwe_classes.append([cwe_id for cwe_id in json_normalize(cwes)["value"]])
+#             else:
+#                 cwe_classes.append(["unknown"])
+
+#     assert len(problem_col) == len(cwe_classes), \
+#         "Sizes are not equal - Problem occurred while fetching the cwe classification records!"
+#     return cwe_classes
+
 def add_cwe_class(problem_col):
     """
     returns CWEs of the CVE.
     """
     cwe_classes = []
+    
     for p in problem_col:
-        des = str(p).replace("'", '"')
-        des = json.loads(des)
-        for cwes in json_normalize(des)["description"]:  # for every cwe of each cve.
-            if len(cwes) != 0:
-                cwe_classes.append([cwe_id for cwe_id in json_normalize(cwes)["value"]])
+        try:
+            # Basic cleaning and parsing
+            des = str(p).replace("'", '"')
+            des = json.loads(des)
+            
+            # Case 1: The JSON list is empty
+            if not des:
+                cwe_classes.append(["unknown"])
+                continue
+
+            # Normalize the JSON
+            df_norm = json_normalize(des)
+
+            # Case 2: 'description' column is missing from the data
+            if "description" not in df_norm.columns:
+                cwe_classes.append(["unknown"])
+                continue
+
+            # Collect all CWEs for this specific CVE (p)
+            current_cve_cwes = []
+            
+            # Iterate through the descriptions in this single record
+            for cwes in df_norm["description"]:
+                if isinstance(cwes, list) and len(cwes) > 0:
+                    # Extract the 'value' (CWE ID) safely
+                    extracted_ids = [item.get('value') for item in cwes if item.get('value')]
+                    current_cve_cwes.extend(extracted_ids)
+
+            # Append the result for this row
+            if current_cve_cwes:
+                # remove duplicates if desired: list(set(current_cve_cwes))
+                cwe_classes.append(current_cve_cwes) 
             else:
                 cwe_classes.append(["unknown"])
 
+        except Exception as e:
+            print(f"Error parsing record: {p}\nError: {e}")
+            # Append unknown so the lists stay the same length even on error
+            cwe_classes.append(["unknown"])
+
+    # This assertion should now pass safely
     assert len(problem_col) == len(cwe_classes), \
-        "Sizes are not equal - Problem occurred while fetching the cwe classification records!"
+        f"Sizes are not equal! Input: {len(problem_col)}, Output: {len(cwe_classes)}"
+        
     return cwe_classes
