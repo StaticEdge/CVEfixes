@@ -3,5 +3,6 @@ CVEfixes*.db
 CVEfixes*.sql.gz
 venv/*
 Examples/nvdcve-2.0-2025.json.zip
-Data/CVEfixes.db
-
+Data/*
+Code/__pycache__/*
+.DS_Store/
